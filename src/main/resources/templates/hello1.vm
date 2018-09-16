@@ -1,0 +1,13 @@
+<html>
+<body>
+<pre>
+    Hi,I'am a new One
+    $!{value1}
+
+    #foreach($!{color} in $!{colors})
+        The Colors Is: $!{color}
+    #end
+
+</pre>
+</body>
+</html>
