@@ -1,6 +1,7 @@
 package com.nowcoder.firstdemo.controller;
 
 import com.nowcoder.firstdemo.service.UserService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +31,21 @@ public class LoginController {
     public String reg(Model model,
                       @RequestParam("username") String username,
                       @RequestParam("password") String password,
+                      @RequestParam(value = "next", required = false) String next,
+                      @RequestParam(value = "rememberme",defaultValue = "false") boolean rememberme,
                       HttpServletResponse response) {
         try {
             Map<String, String> map = userService.register(username, password);
             if (map.containsKey("ticket")) {
                 Cookie cookie = new Cookie("ticket", map.get("ticket"));
                 cookie.setPath("/");
+                if (rememberme) {
+                    cookie.setMaxAge(3600*24*2);
+                }
                 response.addCookie(cookie);
+                if (StringUtils.isNotBlank(next)) {
+                    return "redirect:" + next;
+                }
                 return "redirect:/";
             } else {
                 model.addAttribute("msg", map.get("msg"));
@@ -44,12 +53,14 @@ public class LoginController {
             }
         }catch (Exception e) {
             logger.error("注册异常" + e.getMessage());
+            model.addAttribute("msg", "服务器错误");
             return "login";
         }
     }
 
-    @RequestMapping(path = {"/regLogin"}, method = {RequestMethod.GET})
-    public String reg(Model model) {
+    @RequestMapping(path = {"/reglogin"}, method = {RequestMethod.GET})
+    public String reg(Model model, @RequestParam(value = "next", required = false) String next) {
+        model.addAttribute("next", next);
        return "login";
     }
 
@@ -58,13 +69,20 @@ public class LoginController {
                         @RequestParam("username") String username,
                         @RequestParam("password") String password,
                         @RequestParam(value = "rememberme", defaultValue = "false") boolean rememberme,
+                        @RequestParam(value = "next", required = false) String next,
                         HttpServletResponse response) {
         try {
             Map<String, String> map = userService.login(username, password);
-            if (map.containsKey("ticket")) {
+            if (map.containsKey("ticket")) {//cookie短时间内登录？
                 Cookie cookie = new Cookie("ticket", map.get("ticket"));
+                if (rememberme) {
+                    cookie.setMaxAge(3600*24*2);
+                }
                 cookie.setPath("/");
                 response.addCookie(cookie);
+                if (StringUtils.isNotBlank(next)) {//next初始位置跳转到注册页面完成之后，返回原来位置
+                    return "redirect:" + next;
+                }
                 return "redirect:/";
             } else {
                 model.addAttribute("msg", map.get("msg"));
@@ -76,7 +94,7 @@ public class LoginController {
         }
     }
 
-    @RequestMapping(path = {"/logout"}, method = {RequestMethod.GET})
+    @RequestMapping(path = {"/logout"}, method = {RequestMethod.GET,RequestMethod.POST})
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
         return "redirect:/";

@@ -34,7 +34,7 @@ public class HomeController {
         List<Question> questionList = questionService.getLatestQuestions(userId, offset, limit);
         List<ViewObject> vos = new ArrayList<ViewObject>();
         for (Question question : questionList) {
-            ViewObject vo = new ViewObject();
+            ViewObject vo = new ViewObject();//ViewObject可以将不同类型的值一起传到前端
             vo.set("question", question);
             vo.set("user", userService.getUser(question.getUserId()));
             vos.add(vo);

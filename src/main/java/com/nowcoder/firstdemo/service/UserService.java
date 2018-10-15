@@ -61,7 +61,9 @@ public class UserService {
         return userDAO.selectById(id);
     }
 
-
+    public User selectByName(String name) {
+        return userDAO.selectByName(name);
+    }
     public Map<String, String> login(String username, String password) {
         Map<String, String> map = new HashMap<String, String>();
 
@@ -91,7 +93,7 @@ public class UserService {
         return map;
     }
 
-    public String addLoginTicket(int userId) {
+    public String addLoginTicket(int userId) {//如果在登录期间T票过期，status置1,退出登录
         LoginTicket loginTicket = new LoginTicket();
         loginTicket.setUserId(userId);
         Date now = new Date();

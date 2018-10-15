@@ -14,7 +14,7 @@ public interface UserDAO {
     String INSERT_FIELDS = " name, password, salt, head_url ";
     String SELECT_FIELDS = " id, " + INSERT_FIELDS;
 
-
+    //注解的方式映射程序和数据库。那么这里底层实现如何
     @Insert({"insert into", TABLE_NAME, "(", INSERT_FIELDS,") values (#{name},#{password},#{salt},#{headUrl})"})
     int addUser(User user);
 
